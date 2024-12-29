@@ -4,10 +4,12 @@ import Fireworks from "@/components/Fireworks";
 import Settings from "@/components/Settings";
 import { useToast } from "@/hooks/use-toast";
 import CountrySelect from "@/components/CountrySelect";
+import { Input } from "@/components/ui/input";
 
 const Index = () => {
   const [selectedTimezone, setSelectedTimezone] = useState<string>("");
   const [timeRemaining, setTimeRemaining] = useState<string>("");
+  const [daysRemaining, setDaysRemaining] = useState<number>(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showTime, setShowTime] = useState(true);
   const [timeFormat24, setTimeFormat24] = useState(true);
@@ -15,21 +17,31 @@ const Index = () => {
   const [fontSize, setFontSize] = useState(4);
   const [fireworkSpeed, setFireworkSpeed] = useState(50);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
+  const [manualDateTime, setManualDateTime] = useState("");
+  const [useManualTime, setUseManualTime] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!selectedTimezone) return;
+    if (!selectedTimezone && !useManualTime) return;
 
-    const targetDate = new Date("2025-01-01T00:00:00");
-    targetDate.setHours(0, 0, 0, 0);
+    const targetDate = useManualTime 
+      ? new Date(manualDateTime)
+      : new Date("2025-01-01T00:00:00");
+
+    if (useManualTime && (!manualDateTime || isNaN(targetDate.getTime()))) {
+      return;
+    }
 
     const interval = setInterval(() => {
       const now = new Date();
-      const userTime = new Date(now.toLocaleString("en-US", { timeZone: selectedTimezone }));
+      const userTime = useManualTime 
+        ? now 
+        : new Date(now.toLocaleString("en-US", { timeZone: selectedTimezone }));
       const distance = targetDate.getTime() - userTime.getTime();
 
       if (distance <= 0) {
         setTimeRemaining("00:00:00");
+        setDaysRemaining(0);
         setIsCountdownComplete(true);
         clearInterval(interval);
         toast({
@@ -37,10 +49,12 @@ const Index = () => {
           description: "bring them back home 🎗",
         });
       } else {
-        const hours = Math.floor(distance / (1000 * 60 * 60));
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+        setDaysRemaining(days);
         setTimeRemaining(
           `${hours.toString().padStart(2, "0")}:${minutes
             .toString()
@@ -50,14 +64,32 @@ const Index = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [selectedTimezone, toast]);
+  }, [selectedTimezone, manualDateTime, useManualTime, toast]);
 
   return (
     <div className="min-h-screen bg-secondary flex flex-col items-center justify-center relative overflow-hidden">
       <Fireworks isActive={isCountdownComplete} speed={fireworkSpeed} />
 
-      {!selectedTimezone ? (
-        <CountrySelect onSelect={setSelectedTimezone} />
+      {!selectedTimezone && !useManualTime ? (
+        <div className="space-y-4 text-center">
+          <CountrySelect onSelect={setSelectedTimezone} />
+          <div className="text-white">- or -</div>
+          <div className="space-y-2">
+            <Input
+              type="datetime-local"
+              value={manualDateTime}
+              onChange={(e) => setManualDateTime(e.target.value)}
+              className="bg-secondary/50 text-white"
+            />
+            <Button
+              onClick={() => setUseManualTime(true)}
+              className="w-full bg-primary hover:bg-primary/90"
+              disabled={!manualDateTime}
+            >
+              Set Custom Time
+            </Button>
+          </div>
+        </div>
       ) : (
         <div className="text-center space-y-8 relative">
           {showTime && (
@@ -68,7 +100,12 @@ const Index = () => {
                 fontSize: `${fontSize}rem`,
               }}
             >
-              <span className="text-white font-mono">{timeRemaining}</span>
+              <div className="text-white font-mono">
+                {daysRemaining > 0 && (
+                  <div className="mb-2">{daysRemaining} days</div>
+                )}
+                <span>{timeRemaining}</span>
+              </div>
             </div>
           )}
 
