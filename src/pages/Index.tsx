@@ -3,11 +3,9 @@ import { Button } from "@/components/ui/button";
 import Fireworks from "@/components/Fireworks";
 import Settings from "@/components/Settings";
 import { useToast } from "@/hooks/use-toast";
-import CountrySelect from "@/components/CountrySelect";
 import { Input } from "@/components/ui/input";
 
 const Index = () => {
-  const [selectedTimezone, setSelectedTimezone] = useState<string>("");
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [daysRemaining, setDaysRemaining] = useState<number>(0);
   const [showSettings, setShowSettings] = useState(false);
@@ -18,26 +16,20 @@ const Index = () => {
   const [fireworkSpeed, setFireworkSpeed] = useState(50);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [manualDateTime, setManualDateTime] = useState("");
-  const [useManualTime, setUseManualTime] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!selectedTimezone && !useManualTime) return;
+    if (!manualDateTime) return;
 
-    const targetDate = useManualTime 
-      ? new Date(manualDateTime)
-      : new Date("2025-01-01T00:00:00");
+    const targetDate = new Date(manualDateTime);
 
-    if (useManualTime && (!manualDateTime || isNaN(targetDate.getTime()))) {
+    if (isNaN(targetDate.getTime())) {
       return;
     }
 
     const interval = setInterval(() => {
       const now = new Date();
-      const userTime = useManualTime 
-        ? now 
-        : new Date(now.toLocaleString("en-US", { timeZone: selectedTimezone }));
-      const distance = targetDate.getTime() - userTime.getTime();
+      const distance = targetDate.getTime() - now.getTime();
 
       if (distance <= 0) {
         setTimeRemaining("00:00:00");
@@ -64,16 +56,17 @@ const Index = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [selectedTimezone, manualDateTime, useManualTime, toast]);
+  }, [manualDateTime, toast]);
 
   return (
     <div className="min-h-screen bg-secondary flex flex-col items-center justify-center relative overflow-hidden">
       <Fireworks isActive={isCountdownComplete} speed={fireworkSpeed} />
 
-      {!selectedTimezone && !useManualTime ? (
+      {!manualDateTime ? (
         <div className="space-y-4 text-center">
-          <CountrySelect onSelect={setSelectedTimezone} />
-          <div className="text-white">- or -</div>
+          <h1 className="text-4xl font-bold text-white mb-8">
+            Set Your Countdown
+          </h1>
           <div className="space-y-2">
             <Input
               type="datetime-local"
@@ -81,13 +74,9 @@ const Index = () => {
               onChange={(e) => setManualDateTime(e.target.value)}
               className="bg-secondary/50 text-white"
             />
-            <Button
-              onClick={() => setUseManualTime(true)}
-              className="w-full bg-primary hover:bg-primary/90"
-              disabled={!manualDateTime}
-            >
-              Set Custom Time
-            </Button>
+            <div className="text-sm text-white/60 mt-1">
+              Times are set in your local timezone
+            </div>
           </div>
         </div>
       ) : (
