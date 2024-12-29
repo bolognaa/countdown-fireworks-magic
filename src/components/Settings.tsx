@@ -30,7 +30,7 @@ const Settings = ({
   onClose,
 }: SettingsProps) => {
   return (
-    <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-secondary/90 backdrop-blur-sm rounded-lg p-6 w-96 text-white space-y-4">
+    <div className="bg-secondary/90 backdrop-blur-sm rounded-lg p-6 w-96 text-white space-y-4">
       <div className="flex items-center justify-between">
         <span>Show Time</span>
         <Switch checked={showTime} onCheckedChange={setShowTime} />

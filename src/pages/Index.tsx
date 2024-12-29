@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Fireworks from "@/components/Fireworks";
 import Settings from "@/components/Settings";
 import { useToast } from "@/hooks/use-toast";
+import CountrySelect from "@/components/CountrySelect";
 
 const Index = () => {
-  const [targetTime, setTargetTime] = useState<string>("");
+  const [selectedTimezone, setSelectedTimezone] = useState<string>("");
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [showSettings, setShowSettings] = useState(false);
   const [showTime, setShowTime] = useState(true);
@@ -18,12 +18,15 @@ const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!targetTime) return;
+    if (!selectedTimezone) return;
+
+    const targetDate = new Date("2025-01-01T00:00:00");
+    targetDate.setHours(0, 0, 0, 0);
 
     const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const target = new Date(targetTime).getTime();
-      const distance = target - now;
+      const now = new Date();
+      const userTime = new Date(now.toLocaleString("en-US", { timeZone: selectedTimezone }));
+      const distance = targetDate.getTime() - userTime.getTime();
 
       if (distance <= 0) {
         setTimeRemaining("00:00:00");
@@ -47,29 +50,17 @@ const Index = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [targetTime, toast]);
+  }, [selectedTimezone, toast]);
 
   return (
     <div className="min-h-screen bg-secondary flex flex-col items-center justify-center relative overflow-hidden">
       <Fireworks isActive={isCountdownComplete} speed={fireworkSpeed} />
 
-      <div
-        className="text-center space-y-8 relative"
-        style={{ zIndex: 1 }}
-      >
-        {!targetTime ? (
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold text-white mb-8">
-              Set Countdown Time
-            </h1>
-            <Input
-              type="datetime-local"
-              className="bg-white/10 text-white border-white/20"
-              onChange={(e) => setTargetTime(e.target.value)}
-            />
-          </div>
-        ) : (
-          showTime && (
+      {!selectedTimezone ? (
+        <CountrySelect onSelect={setSelectedTimezone} />
+      ) : (
+        <div className="text-center space-y-8 relative">
+          {showTime && (
             <div
               className="bg-black/[.15] backdrop-blur-sm px-8 py-4 rounded-lg transition-all duration-300"
               style={{
@@ -79,15 +70,18 @@ const Index = () => {
             >
               <span className="text-white font-mono">{timeRemaining}</span>
             </div>
-          )
-        )}
+          )}
 
-        {isCountdownComplete && (
-          <div className="text-white text-2xl animate-fade-in mt-8">
-            bring them back home 🎗
-          </div>
-        )}
-      </div>
+          {isCountdownComplete && (
+            <div 
+              className="text-white animate-fade-in mt-8"
+              style={{ fontSize: `${fontSize * 0.5}rem` }}
+            >
+              bring them back home 🎗
+            </div>
+          )}
+        </div>
+      )}
 
       <Button
         className="fixed bottom-4 right-4 bg-primary hover:bg-primary/90"
@@ -97,19 +91,21 @@ const Index = () => {
       </Button>
 
       {showSettings && (
-        <Settings
-          showTime={showTime}
-          setShowTime={setShowTime}
-          timeFormat24={timeFormat24}
-          setTimeFormat24={setTimeFormat24}
-          backgroundOpacity={backgroundOpacity}
-          setBackgroundOpacity={setBackgroundOpacity}
-          fontSize={fontSize}
-          setFontSize={setFontSize}
-          fireworkSpeed={fireworkSpeed}
-          setFireworkSpeed={setFireworkSpeed}
-          onClose={() => setShowSettings(false)}
-        />
+        <div className="fixed right-4 top-1/2 -translate-y-1/2">
+          <Settings
+            showTime={showTime}
+            setShowTime={setShowTime}
+            timeFormat24={timeFormat24}
+            setTimeFormat24={setTimeFormat24}
+            backgroundOpacity={backgroundOpacity}
+            setBackgroundOpacity={setBackgroundOpacity}
+            fontSize={fontSize}
+            setFontSize={setFontSize}
+            fireworkSpeed={fireworkSpeed}
+            setFireworkSpeed={setFireworkSpeed}
+            onClose={() => setShowSettings(false)}
+          />
+        </div>
       )}
     </div>
   );
