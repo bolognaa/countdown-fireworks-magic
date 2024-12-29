@@ -16,6 +16,8 @@ const Index = () => {
   const [fireworkSpeed, setFireworkSpeed] = useState(50);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [manualDateTime, setManualDateTime] = useState("");
+  const [gradientStart, setGradientStart] = useState("#1A1F2C");
+  const [gradientEnd, setGradientEnd] = useState("#2A2F3C");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -59,7 +61,12 @@ const Index = () => {
   }, [manualDateTime, toast]);
 
   return (
-    <div className="min-h-screen bg-secondary flex flex-col items-center justify-center relative overflow-hidden">
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{
+        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`
+      }}
+    >
       <Fireworks isActive={isCountdownComplete} speed={fireworkSpeed} />
 
       {!manualDateTime ? (
@@ -72,7 +79,7 @@ const Index = () => {
               type="datetime-local"
               value={manualDateTime}
               onChange={(e) => setManualDateTime(e.target.value)}
-              className="bg-secondary/50 text-white"
+              className="bg-secondary/50 text-white [color-scheme:dark]"
             />
             <div className="text-sm text-white/60 mt-1">
               Times are set in your local timezone
@@ -129,6 +136,10 @@ const Index = () => {
             setFontSize={setFontSize}
             fireworkSpeed={fireworkSpeed}
             setFireworkSpeed={setFireworkSpeed}
+            gradientStart={gradientStart}
+            setGradientStart={setGradientStart}
+            gradientEnd={gradientEnd}
+            setGradientEnd={setGradientEnd}
             onClose={() => setShowSettings(false)}
           />
         </div>

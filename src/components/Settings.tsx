@@ -1,6 +1,7 @@
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface SettingsProps {
   showTime: boolean;
@@ -13,6 +14,10 @@ interface SettingsProps {
   setFontSize: (value: number) => void;
   fireworkSpeed: number;
   setFireworkSpeed: (value: number) => void;
+  gradientStart: string;
+  setGradientStart: (value: string) => void;
+  gradientEnd: string;
+  setGradientEnd: (value: string) => void;
   onClose: () => void;
 }
 
@@ -27,6 +32,10 @@ const Settings = ({
   setFontSize,
   fireworkSpeed,
   setFireworkSpeed,
+  gradientStart,
+  setGradientStart,
+  gradientEnd,
+  setGradientEnd,
   onClose,
 }: SettingsProps) => {
   return (
@@ -78,6 +87,26 @@ const Settings = ({
           onValueChange={(value) => setFireworkSpeed(value[0])}
           max={100}
           step={1}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <span>Gradient Start Color</span>
+        <Input
+          type="color"
+          value={gradientStart}
+          onChange={(e) => setGradientStart(e.target.value)}
+          className="w-full h-10 bg-transparent border border-white/20"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <span>Gradient End Color</span>
+        <Input
+          type="color"
+          value={gradientEnd}
+          onChange={(e) => setGradientEnd(e.target.value)}
+          className="w-full h-10 bg-transparent border border-white/20"
         />
       </div>
 
