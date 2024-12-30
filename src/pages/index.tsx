@@ -5,7 +5,7 @@ import Settings from "@/components/Settings";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 
-export default function Index() {
+const Index = () => {
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [daysRemaining, setDaysRemaining] = useState<number>(0);
   const [showSettings, setShowSettings] = useState(false);
@@ -15,7 +15,6 @@ export default function Index() {
   const [fontSize, setFontSize] = useState(4);
   const [fireworkSpeed, setFireworkSpeed] = useState(50);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
-  const [tempDateTime, setTempDateTime] = useState("");
   const [manualDateTime, setManualDateTime] = useState("");
   const [gradientStart, setGradientStart] = useState("#1A1F2C");
   const [gradientEnd, setGradientEnd] = useState("#2A2F3C");
@@ -45,9 +44,7 @@ export default function Index() {
         });
       } else {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        );
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
@@ -63,28 +60,11 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [manualDateTime, toast]);
 
-  const handleConfirmDateTime = () => {
-    if (!tempDateTime) {
-      toast({
-        title: "Error",
-        description: "Please select a date and time first",
-        variant: "destructive",
-      });
-      return;
-    }
-    setManualDateTime(tempDateTime);
-    setIsCountdownComplete(false);
-    toast({
-      title: "Countdown Set",
-      description: "Your countdown has been started",
-    });
-  };
-
   return (
-    <div
+    <div 
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`
       }}
     >
       <Fireworks isActive={isCountdownComplete} speed={fireworkSpeed} />
@@ -94,19 +74,13 @@ export default function Index() {
           <h1 className="text-4xl font-bold text-white mb-8">
             Set Your Countdown
           </h1>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <Input
               type="datetime-local"
-              value={tempDateTime}
-              onChange={(e) => setTempDateTime(e.target.value)}
+              value={manualDateTime}
+              onChange={(e) => setManualDateTime(e.target.value)}
               className="bg-secondary/50 text-white [color-scheme:dark]"
             />
-            <Button
-              onClick={handleConfirmDateTime}
-              className="w-full bg-primary hover:bg-primary/90"
-            >
-              Start Countdown
-            </Button>
             <div className="text-sm text-white/60 mt-1">
               Times are set in your local timezone
             </div>
@@ -132,7 +106,7 @@ export default function Index() {
           )}
 
           {isCountdownComplete && (
-            <div
+            <div 
               className="text-white animate-fade-in mt-8"
               style={{ fontSize: `${fontSize * 0.5}rem` }}
             >
@@ -172,4 +146,6 @@ export default function Index() {
       )}
     </div>
   );
-}
+};
+
+export default Index;
