@@ -16,14 +16,15 @@ const Index = () => {
   const [fireworkSpeed, setFireworkSpeed] = useState(50);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [manualDateTime, setManualDateTime] = useState("");
+  const [confirmedDateTime, setConfirmedDateTime] = useState("");
   const [gradientStart, setGradientStart] = useState("#1A1F2C");
   const [gradientEnd, setGradientEnd] = useState("#2A2F3C");
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!manualDateTime) return;
+    if (!confirmedDateTime) return;
 
-    const targetDate = new Date(manualDateTime);
+    const targetDate = new Date(confirmedDateTime);
 
     if (isNaN(targetDate.getTime())) {
       return;
@@ -44,7 +45,9 @@ const Index = () => {
         });
       } else {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const hours = Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
@@ -58,18 +61,30 @@ const Index = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [manualDateTime, toast]);
+  }, [confirmedDateTime, toast]);
+
+  const handleConfirmDateTime = () => {
+    if (!manualDateTime) {
+      toast({
+        title: "Error",
+        description: "Please select a date and time",
+        variant: "destructive",
+      });
+      return;
+    }
+    setConfirmedDateTime(manualDateTime);
+  };
 
   return (
-    <div 
+    <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`
+        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
       }}
     >
       <Fireworks isActive={isCountdownComplete} speed={fireworkSpeed} />
 
-      {!manualDateTime ? (
+      {!confirmedDateTime ? (
         <div className="space-y-4 text-center">
           <h1 className="text-4xl font-bold text-white mb-8">
             Set Your Countdown
@@ -84,6 +99,12 @@ const Index = () => {
             <div className="text-sm text-white/60 mt-1">
               Times are set in your local timezone
             </div>
+            <Button
+              onClick={handleConfirmDateTime}
+              className="w-full bg-primary hover:bg-primary/90"
+            >
+              Start Countdown
+            </Button>
           </div>
         </div>
       ) : (
