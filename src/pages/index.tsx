@@ -165,6 +165,15 @@ const Index = () => {
           />
         </div>
       )}
+
+      <a
+        href="https://www.instagram.com/kosher.knot"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 left-4 text-white/80 hover:text-white transition-colors text-sm"
+      >
+        created by @kosher.knot
+      </a>
     </div>
   );
 };
