@@ -94,7 +94,7 @@ const Index = () => {
               type="datetime-local"
               value={manualDateTime}
               onChange={(e) => setManualDateTime(e.target.value)}
-              className="bg-secondary/50 text-white [color-scheme:dark]"
+              className="bg-secondary/80 text-white [color-scheme:dark] placeholder:text-white focus:text-white"
             />
             <div className="text-sm text-white/60 mt-1">
               Times are set in your local timezone
